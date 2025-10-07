@@ -1,0 +1,13 @@
+#include "Item.hpp"
+
+namespace ugame::core
+{
+
+Item::Item(ItemID id, const std::string& name, ItemType type, StatModifier stats)
+    : m_id(id)
+    , m_name{ name }
+    , m_type{ type }
+    , m_stats{ stats }
+{}
+
+}

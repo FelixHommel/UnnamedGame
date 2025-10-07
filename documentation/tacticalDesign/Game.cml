@@ -1,0 +1,288 @@
+ContextMap Game {
+	type SYSTEM_LANDSCAPE
+	state AS_IS
+	contains GameLoop, Player, World, Combat, Item, Stats
+
+	GameLoop ->[CF] Player
+
+	GameLoop ->[CF] World
+
+	GameLoop ->[CF] Combat
+
+	Player Customer-Supplier Item
+
+	Player -> Combat
+
+	Player [SK]<->[SK] Stats
+
+	Item [SK]<->[SK] Stats
+
+	World [P]<->[P] Combat
+}
+
+BoundedContext World {
+	type = FEATURE
+	domainVisionStatement = "Map, tiles, movement and procedural generation"
+	implementationTechnology = "C++ core library"
+	responsibilities = "Map", "Tiles", "WorldGeneration"
+	knowledgeLevel = CONCRETE
+
+	Aggregate Maps {
+		Entity GameMap {
+			aggregateRoot
+
+			- MapId id
+			String name
+			- List<Tile> tiles
+			- List<EntityRef> entities
+
+			Repository MapRepository {
+				@GameMap find(@MapId id);
+				List<@GameMap> findAll();
+			}
+		}
+
+		ValueObject MapId { String id key }
+
+		Entity Tile {
+			- Position position
+			- TileType tileType
+		}
+
+		ValueObject Position {
+			int m_x
+			int m_y
+		}
+
+		ValueObject TileType {
+			String name
+			int movementCost
+			- Walkability walkable
+			- MovementRestriction movement
+		}
+
+		enum Walkability {
+			WALKABLE, RESTRICTED, NOT_WALKABLE
+		}
+
+		ValueObject MovementRestriction {
+			String movementCondition
+
+			def boolean checkSatisfied(@EntityRef entity);
+		}
+
+		ValueObject EntityRef {
+			String entityId
+			String entityType
+			- Position position
+		}
+
+		Service PathfindingService {
+			List<@Position> findPath(@Position fromPos, @Position toPos) throws PathNotFoundException;
+		}
+
+		Service WorldGenerationService {
+			@GameMap generateMap(int seed, int width, int height) : write;
+		}
+	}
+}
+
+BoundedContext Item {
+	type = FEATURE
+	domainVisionStatement = "Item definition, effects and loot generation"
+	implementationTechnology = "C++ core library"
+	responsibilities = "Items", "Loot", "Crafting"
+	knowledgeLevel = CONCRETE
+
+	Aggregate Items {
+		Entity Item {
+			aggregateRoot
+
+			- ItemId id
+			String name
+			- ItemType itemType
+			- StatModifier modifier
+
+			def void applyEffect(String targetRef);
+
+			Repository ItemRepository {
+				@Item find(@ItemId id);
+				List<@Item> findByType(@ItemType itemType);
+				List<@Item> findAll();
+			}
+		}
+
+		ValueObject ItemId { String id key }
+
+		ValueObject ItemType {
+			String name
+			boolean equippable
+		}
+
+		Service LootTableService {
+			List<@Item> rollLoot(String tableId, int lootLevel);
+		}
+
+		Service ItemFactory {
+			@Item createRandomWeapon(int weaponLevel) throws WeaponGenerationException;
+		}
+	}
+}
+
+BoundedContext Player {
+	type = FEATURE
+	domainVisionStatement = "Player character, stats, inventory and progression"
+	implementationTechnology = "C++ core library"
+	responsibilities = "Characters", "Inventory", "Progression"
+	knowledgeLevel = CONCRETE
+
+	Aggregate Character {
+		Entity Player {
+			aggregateRoot
+
+			- PlayerId id
+			String name
+			- StatTable stats
+			- Inventory inventory
+			int experience
+			int playerLevel
+		
+			def void equipItem(String itemId);
+			def void useItem(String itemId);
+
+			Repository PlayerRepository {
+				@Player find(@PlayerId id);
+			}
+		}
+
+		ValueObject PlayerId { String id key }
+
+		Entity Inventory {
+			List<String> itemIds
+
+			def void addItem(String itemId);
+			def boolean removeItem(String itemId);
+		}
+
+		Service LevelingService {
+			boolean gainExperience(@PlayerId playerId, int xp) : write;
+		}
+	}
+}
+
+BoundedContext Stats {
+	type = FEATURE
+	domainVisionStatement = "Define common stat structures that are shared between Player and Item"
+	implementationTechnology = "C++ core library"
+	responsibilities = "Stats"
+	knowledgeLevel = CONCRETE
+
+	Aggregate Stats {
+		ValueObject  StatTable {
+			int hp
+			int attack
+			int defense
+			int speed
+			int luck
+		}
+
+		ValueObject StatModifier {
+			int hp
+			int attack
+			int defense
+			int speed
+			int luck
+		}
+
+		Service StatComputationService {
+			@StatTable apply(@StatTable base, @StatModifier mod);
+		}
+	}
+}
+
+BoundedContext Combat {
+	type = FEATURE
+	domainVisionStatement = "Combat rules, turn resolution and status effects"
+	implementationTechnology = "C++ core library"
+	responsibilities = "Combat", "TurnOrder", "Effects"
+	knowledgeLevel = CONCRETE
+
+	Aggregate Battles {
+		Entity Battle {
+			aggregateRoot
+
+			- List<ActorRef> participants
+
+			def void startBattle() : write [INITIATED -> ONGOING];
+			def void performAction(@ActorRef performingActor, @Action performedAction) : write [ONGOING -> RESOLVED];
+			def void endBattle() : write [ONGOING -> RESOLVED];
+		}
+
+		enum BattleStates {
+			aggregateLifecycle
+			INITIATED, ONGOING, RESOLVED
+		}
+
+		ValueObject BattleId { String id key }
+
+		ValueObject ActorRef {
+			String actorId
+			String actorType
+		}
+
+		Entity Action {
+			String actionType
+			String itemId
+			- Skill skill
+			int actionPriority
+		}
+
+		ValueObject Skill {
+			String name
+			int power
+		}
+
+		Service CombatService {
+			boolean resolveAttack(@ActorRef attacker, @ActorRef defender, @Action playedAction) : write;
+			List<@ActorRef> determineTurnOrder(List<@ActorRef> actors) : read-only;
+		}
+	}
+}
+
+BoundedContext GameLoop {
+	type = FEATURE
+	domainVisionStatement = "Orchestration of the turn-based flow and action scheduling"
+	implementationTechnology = "C++ core library"
+	responsibilities = "Turns", "ActionQueue", "GameState"
+	knowledgeLevel = CONCRETE
+
+	Aggregate Game {
+		Entity Game {
+			aggregateRoot
+
+			int turnNumber
+
+			def void startTurn() : write;
+			def void endTurn() : write;
+		}
+
+		ValueObject GameId { String id key }
+
+		Entity ActionQueue {
+			- List<ActionRef> queue
+
+			def void enqueue(@Action newAction);
+			def @Action pop();
+		}
+
+		ValueObject ActionRef {
+			String actionId
+			String sourceContext
+		}
+
+		Service TurnService {
+			void tick();
+			void scheduleAction(@Action scheduledAction);
+		}
+	}
+}
