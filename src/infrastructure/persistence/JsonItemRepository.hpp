@@ -25,9 +25,9 @@ public:
     ~JsonItemRepository() override = default;
 
     JsonItemRepository(const JsonItemRepository&) = default;
-    JsonItemRepository(JsonItemRepository&&) = delete;
+    JsonItemRepository(JsonItemRepository&&) = default;
     JsonItemRepository& operator=(const JsonItemRepository&) = default;
-    JsonItemRepository& operator=(JsonItemRepository&&) = delete;
+    JsonItemRepository& operator=(JsonItemRepository&&) = default;
 
     std::optional<std::shared_ptr<core::Item>> findById(ItemID id) noexcept override;
     std::vector<std::shared_ptr<core::Item>> findAll() noexcept override;

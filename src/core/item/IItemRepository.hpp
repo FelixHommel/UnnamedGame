@@ -22,9 +22,9 @@ public:
     virtual ~IItemRepository() = default;
 
     IItemRepository(const IItemRepository&) = default;
-    IItemRepository(IItemRepository&&) = delete;
+    IItemRepository(IItemRepository&&) = default;
     IItemRepository& operator=(const IItemRepository&) = default;
-    IItemRepository& operator=(IItemRepository&&) = delete;
+    IItemRepository& operator=(IItemRepository&&) = default;
 
     /// \brief retrieve the item specified by it's ID
     virtual std::optional<std::shared_ptr<Item>> findById(ItemID id) noexcept = 0;
