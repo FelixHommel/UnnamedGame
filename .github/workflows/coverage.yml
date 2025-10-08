@@ -6,14 +6,14 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  LINE_COVERAGE_REQ: 80
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: sudo apt install lcov
 
     - name: Execute script to generate report
       run: ./scripts/code_coverage_analysis.sh
