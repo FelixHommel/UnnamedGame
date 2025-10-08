@@ -24,7 +24,6 @@ jobs:
         git config user.email github-actions@github.com
         git fetch origin badges || git checkout --orphan badges
         git checkout badges
-        mkdir ./.github/badges
         cp ./build/code-coverage/coverage-report/coverage-badge.json ./.github/badges/coverage-badge.json
         git add ./.github/badges/coverage-badge.json
         git commit -m "Update coverage badge" || echo "No changes"
