@@ -8,7 +8,7 @@ cmake --build --preset code-coverage
 ctest --test-dir ./build/code-coverage/src/test/ --preset test-all
 
 mkdir -p ./build/code-coverage/coverage-data
-lcov --directory ./build/code-coverage/src/test/CMakeFiles/Test.dir/ --capture --ignore-errors mismatch --output-file ./build/code-coverage/coverage-data/coverage.raw.info
+lcov --directory ./build/code-coverage/ --capture --ignore-errors mismatch --output-file ./build/code-coverage/coverage-data/coverage.raw.info
 lcov --ignore-errors unused --remove ./build/code-coverage/coverage-data/coverage.raw.info "*/*deps/*/" "/usr/*" "*/test/*" --output-file ./build/code-coverage/coverage-data/coverage.filtered.info
 
 mkdir -p ./build/code-coverage/coverage-report
