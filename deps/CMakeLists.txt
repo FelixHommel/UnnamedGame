@@ -22,6 +22,13 @@ FetchContent_Declare(
 add_subdirectory(nlohmannjson)
 
 FetchContent_Declare(
+    valijson
+    GIT_REPOSITORY https://github.com/tristanpenman/valijson.git
+    GIT_TAG v1.0.6
+)
+add_subdirectory(valijson)
+
+FetchContent_Declare(
     fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt
     GIT_TAG 11.2.0
