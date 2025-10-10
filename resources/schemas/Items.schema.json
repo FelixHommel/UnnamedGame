@@ -1,0 +1,76 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Item specification for UnnamedGame",
+    "description": "File that describes Items that are used in UnnamedGame",
+    "type": "object",
+    "properties": {
+        "item_array": {
+            "description": "Top level array that contains all items",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier of the Item",
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "name": {
+                        "description": "Name of the Item",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type of the Item",
+                        "enum": [
+                            "WEAPON"
+                        ]
+                    },
+                    "stats": {
+                        "description": "How the Item modifies the stats of the player that owns the Item",
+                        "type": "object",
+                        "properties": {
+                            "hp": {
+                                "description": "Health modifier",
+                                "type": "integer"
+                            },
+                            "attack": {
+                                "description": "Attack modifier",
+                                "type": "integer"
+                            },
+                            "defense": {
+                                "description": "Defense modifier",
+                                "type": "integer"
+                            },
+                            "speed": {
+                                "description": "Speed modifier",
+                                "type": "integer"
+                            },
+                            "luck": {
+                                "description": "Luck modifier",
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "hp",
+                            "attack",
+                            "defense",
+                            "speed",
+                            "luck"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "type",
+                    "stats"
+                ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "required": [
+        "item_array"
+    ]
+}
