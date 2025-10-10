@@ -1,5 +1,6 @@
 build
 .cache
+documentation/doxygen/**
 
 # Created by https://www.toptal.com/developers/gitignore/api/git,linux,macos,windows,visualstudiocode,c++,cmake,vim,doxygen,gcov
 # Edit at https://www.toptal.com/developers/gitignore?templates=git,linux,macos,windows,visualstudiocode,c++,cmake,vim,doxygen,gcov
