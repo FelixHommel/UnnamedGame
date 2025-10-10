@@ -3,20 +3,21 @@ set(NAME "UnnamedGameCore")
 include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
 add_library(${NAME}
-    gameLoop/GameLoop.cpp
-    item/Item.cpp
+    ./gameLoop/GameLoop.cpp
+    ./item/Item.cpp
 )
 
 target_sources(${NAME}
     PRIVATE
         FILE_SET HEADERS
         FILES
-            common/Definitions.hpp
-            common/ILogger.hpp
-            gameLoop/GameLoop.hpp
-            item/Item.hpp
-            item/IItemRepository.hpp
-            stats/StatModifier.hpp
+            ./common/Definitions.hpp
+            ./common/ILogger.hpp
+            ./common/exceptions/RepositoryException.hpp
+            ./gameLoop/GameLoop.hpp
+            ./item/Item.hpp
+            ./item/IItemRepository.hpp
+            ./stats/StatModifier.hpp
 )
 
 target_compile_features(${NAME} PRIVATE cxx_std_23)
