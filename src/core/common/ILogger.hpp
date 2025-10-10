@@ -1,6 +1,7 @@
 #ifndef SRC_CORE_COMMON_I_LOGGER_HPP
 #define SRC_CORE_COMMON_I_LOGGER_HPP
 
+#include <format>
 #include <string_view>
 
 namespace ugame::core
@@ -27,6 +28,27 @@ public:
     virtual void warn(std::string_view msg) = 0;
     /// \brief log messages of the error level (high)
     virtual void error(std::string_view msg) = 0;
+
+    /// \brief log message with format string on info level
+    template<typename... Args>
+    void info(std::format_string<Args...> format, Args&&... args)
+    {
+        info(std::format(format, std::forward<Args>(args)...));
+    }
+
+    /// \brief log message with format string on warning level
+    template<typename... Args>
+    void warn(std::format_string<Args...> format, Args&&... args)
+    {
+        warn(std::format(format, std::forward<Args>(args)...));
+    }
+
+    /// \brief log message with format string on error level
+    template<typename... Args>
+    void error(std::format_string<Args...> format, Args&&... args)
+    {
+        error(std::format(format, std::forward<Args>(args)...));
+    }
 };
 
 } // !ugame::core
