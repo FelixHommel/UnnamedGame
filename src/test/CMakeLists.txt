@@ -25,3 +25,4 @@ target_link_libraries(${NAME}
 )
 
 add_test(NAME ${NAME} COMMAND ${NAME})
+add_definitions(-DRESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources/test/")
