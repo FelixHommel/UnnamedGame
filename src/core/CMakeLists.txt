@@ -12,8 +12,9 @@ target_sources(${NAME}
         FILE_SET HEADERS
         FILES
             ./common/Definitions.hpp
-            ./common/ILogger.hpp
             ./common/exceptions/RepositoryException.hpp
+            ./common/ILogger.hpp
+            ./gameLoop/EventBus.hpp
             ./gameLoop/GameLoop.hpp
             ./item/Item.hpp
             ./item/IItemRepository.hpp
