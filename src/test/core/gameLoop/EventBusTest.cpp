@@ -2,31 +2,44 @@
 
 #include <gtest/gtest.h>
 
-#include <iostream>
 #include <string>
 
-namespace ugame::test::core
+namespace ugame::test::core::eventBus
 {
 using namespace ugame::core;
 
-template<typename T>
+struct TestEvent1 { int value; };
+struct TestEvent2 { std::string value; };
+
 class EventBusTest : public testing::Test
 {
 protected:
     EventBus eventBus;
 };
 
-TYPED_TEST_SUITE_P(EventBusTest);
-
-TYPED_TEST_P(EventBusTest, subscribe)
+TEST_F(EventBusTest, SingleSubscriberReceivesEvent)
 {
-    this->eventBus.subscribe<TypeParam>([](TypeParam value) { std::cout << "Got something: " << value <<  "\n"; ASSERT_FALSE(true); });
-    this->eventBus.publish(TypeParam());
+    const int testValue{ 65491 };
+    int receivedValue{};
+
+    eventBus.subscribe<TestEvent1>([&](const TestEvent1& event){ receivedValue = event.value; });
+    eventBus.publish(TestEvent1(testValue));
+
+    EXPECT_EQ(receivedValue, testValue);
 }
 
-REGISTER_TYPED_TEST_SUITE_P(EventBusTest, subscribe);
+TEST_F(EventBusTest, MultipleSubscribersReceiveEvent)
+{
+    const int testValue{ 76123 };
+    int subscriber1{};
+    int subscriber2{};
 
-using TypeList = ::testing::Types<int, float>;
-INSTANTIATE_TYPED_TEST_SUITE_P(Test, EventBusTest, TypeList);
+    eventBus.subscribe<TestEvent1>([&](const TestEvent1& event){ subscriber1 = event.value; });
+    eventBus.subscribe<TestEvent1>([&](const TestEvent1& event){ subscriber2 = event.value; });
+    eventBus.publish(TestEvent1(testValue));
+
+    EXPECT_EQ(subscriber1, testValue);
+    EXPECT_EQ(subscriber2, testValue);
+}
 
 } // !ugame::test::core
