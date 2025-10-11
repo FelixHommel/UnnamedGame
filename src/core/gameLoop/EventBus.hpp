@@ -11,6 +11,34 @@
 namespace ugame::core
 {
 
+/// \brief EventChannel interface for the \ref EventBus to access subscribers of a certain event uniformly
+///
+/// EventChannles are something the \ref EventBus is interacting with to access all handlers that have
+/// subscribed to a certain type of event. Therefore every event has it's own Channel.
+///
+/// \author Felix Hommel
+/// \date 10/11/2025
+template<typename EventType>
+class EventChannel
+{
+public:
+    EventChannel() = default;
+
+    void subscribe(std::function<void(const EventType&)> handler)
+    {
+        m_handlers.push_back(std::move(handler));
+    }
+
+    void publish(const EventType& event) const
+    {
+        for(auto& h : m_handlers)
+            h(event);
+    }
+
+private:
+    std::vector<std::function<void(const EventType&)>> m_handlers{};
+};
+
 /// \brief A simple implementation of an event bus for event driven communication
 ///
 /// The EventBus is used by the core to process player input by reacting to events that are published by inputs.
@@ -20,7 +48,7 @@ namespace ugame::core
 class EventBus
 {
 public:
-    EventBus();
+    EventBus() = default;
     ~EventBus() = default;
 
     EventBus(const EventBus&) = delete;
@@ -28,35 +56,25 @@ public:
     EventBus& operator=(const EventBus&) = delete;
     EventBus& operator=(EventBus&&) = delete;
 
-    template<typename E>
-    using Handler = std::function<void(const E&)>;
-
-    template<typename E>
-    void subscribe(Handler<E> handler)
+    template<typename EventType>
+    void subscribe(std::function<void(const EventType&)> handler)
     {
-        auto& handlers{ m_subscribers[typeid(E)] };
-        handlers.push_back(
-            [h = std::move(handler)](const auto& event) {
-                h(static_cast<const E&>(event));
-            }
-        );
+        getChannel<EventType>().subscribe(std::move(handler));
     }
 
-    template<typename E>
-    void publish(const E& event)
+    template<typename EventType>
+    void publish(const EventType& event) const
     {
-        auto it{ m_subscribers.find(typeid(E)) };
-
-        if(it == m_subscribers.end())
-            return;
-
-        for(auto& f : it->second)
-            f(event);
+        getChannel<EventType>().publish(event);
     }
 
 private:
-    using GenericHandler = std::function<void(const std::any&)>;
-    std::unordered_map<std::type_index, std::vector<GenericHandler>> m_subscribers;
+    template<typename EventType>
+    EventChannel<EventType>& getChannel() const
+    {
+        static EventChannel<EventType> channel;
+        return channel;
+    }
 };
 
 } //!ugame::core

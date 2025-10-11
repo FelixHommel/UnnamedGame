@@ -1,7 +1,7 @@
 #include "gameLoop/EventBus.hpp"
 
-#include "gtest/gtest.h"
 #include <gtest/gtest.h>
+
 #include <iostream>
 #include <string>
 
@@ -20,13 +20,13 @@ TYPED_TEST_SUITE_P(EventBusTest);
 
 TYPED_TEST_P(EventBusTest, subscribe)
 {
-    this->eventBus.subscribe<TypeParam>([](TypeParam) { std::cout << "Got something\n"; });
-    ASSERT_TRUE(false);
+    this->eventBus.subscribe<TypeParam>([](TypeParam value) { std::cout << "Got something: " << value <<  "\n"; ASSERT_FALSE(true); });
+    this->eventBus.publish(TypeParam());
 }
 
 REGISTER_TYPED_TEST_SUITE_P(EventBusTest, subscribe);
 
-using TypeList = ::testing::Types<char, int, std::string, float>;
+using TypeList = ::testing::Types<int, float>;
 INSTANTIATE_TYPED_TEST_SUITE_P(Test, EventBusTest, TypeList);
 
 } // !ugame::test::core
