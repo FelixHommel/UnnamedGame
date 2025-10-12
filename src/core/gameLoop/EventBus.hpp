@@ -11,9 +11,17 @@
 namespace ugame::core
 {
 
+/// \brief Interface for Event channels
+///
+/// This is primarly usefull so that EventChannels can be stored generically in a container without mentioning
+/// their type parameter.
+///
+/// \author Felix Hommel
+/// \date 10/11/2025
 class IEventChannel
 {
 public:
+    IEventChannel() = default;
     virtual ~IEventChannel() = default;
 
     IEventChannel(const IEventChannel&) = default;
@@ -35,11 +43,17 @@ class EventChannel : public IEventChannel
 public:
     EventChannel() = default;
 
+    /// \brief Register a new callback function
+    ///
+    /// \param handler callback function
     void subscribe(std::function<void(const EventType&)> handler)
     {
         m_handlers.push_back(std::move(handler));
     }
 
+    /// \brief Execute all callback functions with the new event
+    ///
+    /// \param event newly published event
     void publish(const EventType& event) const
     {
         for(auto& h : m_handlers)
@@ -61,31 +75,57 @@ class EventBus
 public:
     EventBus() = default;
 
+    /// \brief subscribe to events of type \p EventType
+    ///
+    /// Subscribers of event will get their callback function executed each time a new event of the \p EventType type 
+    /// are published
+    ///
+    /// \param EventType can be any type
+    /// \param handler callback function that is executed when a new event is published
     template<typename EventType>
     void subscribe(std::function<void(const EventType&)> handler) const
     {
         getChannel<EventType>().subscribe(std::move(handler));
     }
 
+    /// \brief Publish the occurence of a new event
+    ///
+    /// Give notice to all subscribers of \p EventType that a new event has happened
+    ///
+    /// \param EventType can be any type
+    /// \param event the event that happened
     template<typename EventType>
     void publish(const EventType& event) const
     {
         auto it{ m_channels.find(typeid(EventType)) };
 
-        // TODO: refactor out pointerness
         if(it != m_channels.end())
             static_cast<EventChannel<EventType>*>(it->second.get())->publish(event);
     }
 
 private:
-    mutable std::unordered_map<std::type_index, IEventChannel> m_channels;
+    mutable std::unordered_map<std::type_index, std::unique_ptr<IEventChannel>> m_channels;
 
+    /// \brief Safely access references to EventChannels
+    ///
+    /// The function first checks if there already is a channel for \p EventType. If there is it returns
+    /// a reference to the channel, if not it first creates the channel for \p EventType and then returns a reference
+    /// to the channel.
+    ///
+    /// \param EventType can be any type 
+    ///
+    /// \return reference to \ref EventChannel with the type of \p EventType
     template<typename EventType>
     EventChannel<EventType>& getChannel() const
     {
-        auto it{ m_channels.find(typeid(EventType)) };
+        auto& ptr{ m_channels[typeid(EventType)] };
 
-        // TODO: create the getChannel function
+        if(!ptr)
+            ptr = std::make_unique<EventChannel<EventType>>();
+
+        auto* typedPtr{ static_cast<EventChannel<EventType>*>(ptr.get()) };
+
+        return *typedPtr;
     }
 };
 
