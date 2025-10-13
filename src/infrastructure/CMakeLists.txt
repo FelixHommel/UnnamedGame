@@ -3,16 +3,18 @@ set(NAME "UnnamedGameInfrastructure")
 include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
 add_library(${NAME}
-    logging/SpdlogAdapter.cpp
-    persistence/JsonItemRepository.cpp
+    ./logging/SpdlogAdapter.cpp
+    ./persistence/JsonItemRepository.cpp
+    ./input/KeyboardInputAdapter.cpp
 )
 
 target_sources(${NAME}
     PRIVATE
         FILE_SET HEADERS
         FILES
-        logging/SpdlogAdapter.hpp
-        persistence/JsonItemRepository.hpp
+        ./logging/SpdlogAdapter.hpp
+        ./persistence/JsonItemRepository.hpp
+        ./input/KeyboardInputAdapter.hpp
 )
 
 target_compile_features(${NAME} PRIVATE cxx_std_23)
