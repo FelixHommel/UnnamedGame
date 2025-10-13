@@ -1,7 +1,10 @@
 #ifndef SRC_CORE_GAME_LOOP_EVENT_BUS_HPP
 #define SRC_CORE_GAME_LOOP_EVENT_BUS_HPP
 
+#include "common/IEvent.hpp"
+
 #include <algorithm>
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <typeindex>
@@ -70,19 +73,26 @@ private:
 ///
 /// \author Felix Hommel
 /// \date 10/11/2025
-class EventBus
+class EventBus //: public IEventPublisher
 {
 public:
     EventBus() = default;
+    ~EventBus() = default;
+
+    EventBus(const EventBus&) = default;
+    EventBus(EventBus&&) = delete;
+    EventBus& operator=(const EventBus&) = default;
+    EventBus& operator=(EventBus&&) = delete;
 
     /// \brief subscribe to events of type \p EventType
     ///
     /// Subscribers of event will get their callback function executed each time a new event of the \p EventType type 
     /// are published
     ///
-    /// \param EventType can be any type
+    /// \param EventType any type that inherits from IEvent 
     /// \param handler callback function that is executed when a new event is published
     template<typename EventType>
+        requires std::derived_from<EventType, IEvent>
     void subscribe(std::function<void(const EventType&)> handler) const
     {
         getChannel<EventType>().subscribe(std::move(handler));
@@ -92,15 +102,13 @@ public:
     ///
     /// Give notice to all subscribers of \p EventType that a new event has happened
     ///
-    /// \param EventType can be any type
+    /// \param EventType any type that inherits from IEvent 
     /// \param event the event that happened
     template<typename EventType>
+        requires std::derived_from<EventType, IEvent>
     void publish(const EventType& event) const
     {
-        auto it{ m_channels.find(typeid(EventType)) };
-
-        if(it != m_channels.end())
-            static_cast<EventChannel<EventType>*>(it->second.get())->publish(event);
+        getChannel<EventType>().publish(event);
     }
 
 private:
@@ -112,10 +120,11 @@ private:
     /// a reference to the channel, if not it first creates the channel for \p EventType and then returns a reference
     /// to the channel.
     ///
-    /// \param EventType can be any type 
+    /// \param EventType any type that inherits from IEvent 
     ///
     /// \return reference to \ref EventChannel with the type of \p EventType
     template<typename EventType>
+        requires std::derived_from<EventType, IEvent>
     EventChannel<EventType>& getChannel() const
     {
         auto& ptr{ m_channels[typeid(EventType)] };
