@@ -2,6 +2,9 @@
 #define SRC_CORE_GAME_LOOP_GAME_LOOP_HPP
 
 #include "common/ILogger.hpp"
+#include "common/IPlayerInput.hpp"
+#include "gameLoop/EventBus.hpp"
+#include "gameLoop/events/PlayerInputReceivedEvent.hpp"
 
 #include <memory>
 
@@ -15,8 +18,10 @@ namespace ugame::core
 class GameLoop
 {
 public:
-    /// \brief Construct the main component of the game, providing it with a valid logger implementation
-    explicit GameLoop(std::unique_ptr<ILogger> logger);
+    /// \brief Construct the main component of the game
+    ///
+    /// \param logger any implementation of a Logger
+    explicit GameLoop(std::unique_ptr<ILogger> logger, EventBus& bus, std::unique_ptr<IPlayerInput> input);
     ~GameLoop() = default;
 
     GameLoop(const GameLoop&) = delete;
@@ -29,6 +34,11 @@ public:
 
 private:
     std::unique_ptr<ILogger> m_logger;
+    std::unique_ptr<IPlayerInput> m_input;
+
+    bool m_shouldQuit{ false };
+
+    void handlePlayerInput(const events::PlayerInputReceivedEvent& event);
 };
 
 } // !ugame::core

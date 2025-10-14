@@ -3,9 +3,9 @@ set(NAME "Test")
 include (${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
 add_executable(${NAME}
-    main.cpp
-    core/item/ItemRepositoryContractTest.cpp
-    infrastructure/persistence/JsonItemRepositoryTest.cpp
+    ./main.cpp
+    ./core/gameLoop/EventBusTest.cpp
+    ./infrastructure/persistence/JsonItemRepositoryTest.cpp
 )
 
 # use when header files are added

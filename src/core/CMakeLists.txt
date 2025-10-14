@@ -12,9 +12,13 @@ target_sources(${NAME}
         FILE_SET HEADERS
         FILES
             ./common/Definitions.hpp
-            ./common/ILogger.hpp
             ./common/exceptions/RepositoryException.hpp
+            ./common/IPlayerInput.hpp
+            ./common/ILogger.hpp
+            ./common/IEvent.hpp
+            ./gameLoop/EventBus.hpp
             ./gameLoop/GameLoop.hpp
+            ./gameLoop/events/PlayerInputReceivedEvent.hpp
             ./item/Item.hpp
             ./item/IItemRepository.hpp
             ./stats/StatModifier.hpp
@@ -24,9 +28,5 @@ target_compile_features(${NAME} PRIVATE cxx_std_23)
 target_link_libraries(${NAME}
     PRIVATE
         project_warnings
-    PUBLIC
-        fmt::fmt
-        spdlog::spdlog
-        nlohmann_json::nlohmann_json
 )
 target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
