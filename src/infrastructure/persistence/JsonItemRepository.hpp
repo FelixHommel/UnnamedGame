@@ -1,13 +1,14 @@
 #ifndef SRC_INFRASTRUCTURE_PERSISTENCE_JSON_ITEM_REPOSITORY_HPP
 #define SRC_INFRASTRUCTURE_PERSISTENCE_JSON_ITEM_REPOSITORY_HPP
 
+#include "common/ILogger.hpp"
 #include "item/IItemRepository.hpp"
 #include "item/Item.hpp"
+#include "nlohmann/json.hpp"
 
 #include <filesystem>
 #include <map>
 #include <memory>
-#include <optional>
 #include <vector>
 
 namespace ugame::infrastructure
@@ -21,7 +22,7 @@ class JsonItemRepository : public core::IItemRepository
 {
 public:
     /// \brief Construct a new ItemRepository by providing the path to the file's location
-    explicit JsonItemRepository(const std::filesystem::path& filepath);
+    explicit JsonItemRepository(const std::filesystem::path& filepath, std::shared_ptr<core::ILogger> logger);
     ~JsonItemRepository() override = default;
 
     JsonItemRepository(const JsonItemRepository&) = default;
@@ -29,25 +30,29 @@ public:
     JsonItemRepository& operator=(const JsonItemRepository&) = default;
     JsonItemRepository& operator=(JsonItemRepository&&) = default;
 
-    std::optional<std::shared_ptr<core::Item>> findById(ItemID id) noexcept override;
-    std::vector<std::shared_ptr<core::Item>> findAll() noexcept override;
+    const core::Item* findById(ItemID id) override;
+    std::vector<const core::Item*> findAll() override;
 
 private:
     std::filesystem::path m_filepath;
-    std::map<ItemID, std::shared_ptr<core::Item>> m_itemCache;
+    std::shared_ptr<core::ILogger> m_logger;
+    std::map<ItemID, core::Item> m_itemCache; // NOTE: potentially needs to be changed to unique_ptrs in the future
 
-    static constexpr std::string itemsField{ "items" };
-    static constexpr std::string idField{ "id" };
-    static constexpr std::string nameField{ "name" };
-    static constexpr std::string typeField{ "type" };
-    static constexpr std::string statsField{ "stats" };
-    static constexpr std::string statsHpField{ "hp" };
-    static constexpr std::string statsAttackField{ "attack" };
-    static constexpr std::string statsDefenseField{ "defense" };
-    static constexpr std::string statsSpeedField{ "speed" };
-    static constexpr std::string statsLuckField{ "luck" };
+    void checkCache();
+    void loadItemsFromFile();
+    [[nodiscard]] bool validateJson(const nlohmann::json& itemJson) const;
 
-    void loadItemsFromFile() noexcept;
+    static constexpr auto SCHEMA_FILE_PATH{ "schemas/Items.schema.json" };
+    static constexpr auto ITEM_ARRAY_FIELD{ "item_array" };
+    static constexpr auto ID_FIELD{ "id" };
+    static constexpr auto NAME_FIELD{ "name" };
+    static constexpr auto TYPE_FIELD{ "type" };
+    static constexpr auto STATS_FIELD{ "stats" };
+    static constexpr auto STATS_HP_FIELD{ "hp" };
+    static constexpr auto STATS_ATTACK_FIELD{ "attack" };
+    static constexpr auto STATS_DEFENSE_FIELD{ "defense" };
+    static constexpr auto STATS_SPEED_FIELD{ "speed" };
+    static constexpr auto STATS_LUCK_FIELD{ "luck" };
 };
 
 } // !ugame::infrastructure

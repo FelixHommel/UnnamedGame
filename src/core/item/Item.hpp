@@ -40,9 +40,10 @@ public:
     Item() = default;
     Item(ItemID id, const std::string& name, ItemType type, StatModifier stats);
 
-    void setID(ItemID id) noexcept { m_id = id; }
-    void setName(const std::string& name) noexcept { m_name = name; }
-    void setItemType(ItemType type) noexcept { m_type = type; }
+    [[nodiscard]] ItemID getID() const noexcept { return m_id; }
+    [[nodiscard]] std::string getName() const noexcept { return m_name; }
+    [[nodiscard]] ItemType getType() const noexcept { return m_type; }
+    [[nodiscard]] StatModifier getStats() const noexcept { return m_stats; }
 
 private:
     ItemID m_id{};

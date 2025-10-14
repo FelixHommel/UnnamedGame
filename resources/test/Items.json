@@ -1,7 +1,7 @@
 {
-    "items": [
+    "item_array": [
         {
-            "id": 1,
+            "id": 0,
             "name": "Sword",
             "type": "WEAPON",
             "stats": {
@@ -13,7 +13,7 @@
             }
         },
         {
-            "id": 2,
+            "id": 1,
             "name": "Mace",
             "type": "WEAPON",
             "stats": {

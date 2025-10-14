@@ -1,74 +1,173 @@
 #include "JsonItemRepository.hpp"
 
 #include "common/Definitions.hpp"
+#include "common/ILogger.hpp"
+#include "common/exceptions/RepositoryException.hpp"
 #include "item/Item.hpp"
-#include "nlohmann/json.hpp"
 #include "stats/StatModifier.hpp"
 
+#include "nlohmann/json.hpp"
+#include "valijson/adapters/nlohmann_json_adapter.hpp"
+#include "valijson/schema.hpp"
+#include "valijson/schema_parser.hpp"
+#include "valijson/utils/nlohmann_json_utils.hpp"
+#include "valijson/validation_results.hpp"
+#include "valijson/validator.hpp"
+
+#include <filesystem>
 #include <fstream>
 #include <memory>
-#include <numeric>
-#include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
 
 namespace ugame::infrastructure
 {
 
-JsonItemRepository::JsonItemRepository(const std::filesystem::path& filepath)
+JsonItemRepository::JsonItemRepository(const std::filesystem::path& filepath, std::shared_ptr<core::ILogger> logger)
     : m_filepath{ filepath }
+    , m_logger{ logger }
 {}
 
-std::optional<std::shared_ptr<core::Item>> JsonItemRepository::findById(ItemID id) noexcept
+const core::Item* JsonItemRepository::findById(ItemID id)
 {
-    if(m_itemCache.empty())
-        loadItemsFromFile();
+    try
+    {
+        checkCache();
+    }
+    catch(const core::RepositroyException& e)
+    {
+        throw;
+    }
 
-    if(m_itemCache.contains(id))
-        return std::make_optional(m_itemCache[id]);
+    if(auto it{ m_itemCache.find(id) }; it != m_itemCache.end())
+        return &it->second;
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::vector<std::shared_ptr<core::Item>> JsonItemRepository::findAll() noexcept
+std::vector<const core::Item*> JsonItemRepository::findAll()
+{
+    try
+    {
+        checkCache();
+    }
+    catch(const core::RepositroyException& e)
+    {
+        throw;
+    }
+
+    std::vector<const core::Item*> result;
+    result.reserve(m_itemCache.size());
+
+    for(auto& [_, item] : m_itemCache)
+        result.push_back(&item);
+
+    return result;
+}
+
+/// \brief Check if the cache is ready to be used
+///
+/// Check if the cache has already been loaded, if not load from file.
+///
+/// \throws \ref core::RepositroyException
+void JsonItemRepository::checkCache()
 {
     if(m_itemCache.empty())
-        loadItemsFromFile();
-
-    return std::accumulate(m_itemCache.cbegin(), m_itemCache.cend(), std::vector<std::shared_ptr<core::Item>>(m_itemCache.size()), [](auto vec, const auto& entry) {
-        vec.push_back(entry.second);
-        return vec;
-    });
+    {
+        try
+        {
+            loadItemsFromFile();
+        }
+        catch(const core::RepositroyException& e)
+        {
+            throw;
+        }
+    }
 }
 
 /// \brief Load all items from the file
-void JsonItemRepository::loadItemsFromFile() noexcept
+///
+/// \throws \ref core::RepositroyException when the file can't be opened or there is a issue with the parsing
+void JsonItemRepository::loadItemsFromFile()
 {
     std::ifstream in(m_filepath);
+    if(!in.is_open())
+    {
+        m_logger->error("Failed to open item json file: {}", m_filepath.string());
+        throw core::RepositroyException("Failed to open item file: " + m_filepath.string());
+    }
 
     nlohmann::json j{};
-
     in >> j;
 
-    for(auto& element : j[itemsField])
+    if(!validateJson(j))
+    {
+        m_logger->warn("JSON did not validate against the expected scheme: {}", m_filepath.string());
+        throw core::RepositroyException("Failed to validate against scheme: " + m_filepath.string());
+    }
+
+    m_logger->info("items in json: {}", j[ITEM_ARRAY_FIELD].size());
+
+    for(auto& element : j[ITEM_ARRAY_FIELD])
     {
         core::StatModifier mods {
-            .hp = element[statsField][statsHpField].get<hp_t>(),
-            .attack = element[statsField][statsAttackField].get<attack_t>(),
-            .defense = element[statsField][statsDefenseField].get<defense_t>(),
-            .speed = element[statsField][statsSpeedField].get<speed_t>(),
-            .luck = element[statsField][statsLuckField].get<luck_t>()
+            .hp = element[STATS_FIELD][STATS_HP_FIELD].get<hp_t>(),
+            .attack = element[STATS_FIELD][STATS_ATTACK_FIELD].get<attack_t>(),
+            .defense = element[STATS_FIELD][STATS_DEFENSE_FIELD].get<defense_t>(),
+            .speed = element[STATS_FIELD][STATS_SPEED_FIELD].get<speed_t>(),
+            .luck = element[STATS_FIELD][STATS_LUCK_FIELD].get<luck_t>()
         };
 
-        m_itemCache.insert({element[idField].get<ItemID>(), std::make_shared<core::Item>(
-            element[idField].get<ItemID>(),
-            element[nameField].get<std::string>(),
-            element[typeField].get<core::ItemType>(),
-            mods
-        )});
+        m_itemCache.emplace(
+            element[ID_FIELD].get<ItemID>(), 
+            core::Item{
+                element[ID_FIELD].get<ItemID>(),
+                element[NAME_FIELD].get<std::string>(),
+                core::toItemType(element[TYPE_FIELD].get<std::string>()),
+                mods
+            }
+        );
+
     }
 
     in.close();
+}
+
+/// \brief validate a json file against a schema
+///
+/// \param itemJson a nlohmann::json object that is being validated
+///
+/// \return *true* if validation was successfull, *false* if not
+bool JsonItemRepository::validateJson(const nlohmann::json& itemJson) const
+{
+    std::filesystem::path schemaPath(std::string(RESOURCE_DIR) + SCHEMA_FILE_PATH);
+    nlohmann::json schemaJson{};
+    valijson::utils::loadDocument(schemaPath.string(), schemaJson);
+
+    valijson::Schema schema;
+    valijson::SchemaParser parser;
+    valijson::adapters::NlohmannJsonAdapter schemaAdapter(schemaJson);
+    parser.populateSchema(schemaAdapter, schema);
+
+    valijson::Validator validator;
+    valijson::adapters::NlohmannJsonAdapter itemAdapter(itemJson);
+
+    valijson::ValidationResults results;
+    if(!validator.validate(schema, itemAdapter, &results))
+    {
+        m_logger->warn("JSON validation failed");
+
+        std::stringstream errorMessage{};
+        for(const auto& r : results)
+            errorMessage << "\t- " << r.description;
+
+        m_logger->warn(errorMessage.str());
+        return false;
+    }
+
+    m_logger->info("JSON validation successfull");
+    return true;
 }
 
 } // !ugame::infrastructure
