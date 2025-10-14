@@ -143,7 +143,7 @@ bool JsonItemRepository::validateJson(const nlohmann::json& itemJson) const
 {
     std::filesystem::path schemaPath(std::string(RESOURCE_DIR) + SCHEMA_FILE_PATH);
     nlohmann::json schemaJson{};
-    valijson::utils::loadDocument(schemaPath, schemaJson);
+    valijson::utils::loadDocument(schemaPath.string(), schemaJson);
 
     valijson::Schema schema;
     valijson::SchemaParser parser;
