@@ -4,7 +4,7 @@
 #include <format>
 #include <string_view>
 
-namespace ugame::core
+namespace ugame::core::common
 {
 
 /// \brief Logger Interface for the use in the core library
@@ -51,6 +51,6 @@ public:
     }
 };
 
-} // !ugame::core
+} // !ugame::core::common
 
 #endif // !SRC_CORE_COMMON_I_LOGGER_HPP

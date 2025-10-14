@@ -13,14 +13,15 @@ target_sources(${NAME}
         FILES
             ./common/Definitions.hpp
             ./common/exceptions/RepositoryException.hpp
-            ./common/IPlayerInput.hpp
-            ./common/ILogger.hpp
             ./common/IEvent.hpp
+            ./common/IEventChannel.hpp
+            ./common/IItemRepository.hpp
+            ./common/ILogger.hpp
+            ./common/IPlayerInput.hpp
             ./gameLoop/EventBus.hpp
             ./gameLoop/GameLoop.hpp
             ./gameLoop/events/PlayerInputReceivedEvent.hpp
             ./item/Item.hpp
-            ./item/IItemRepository.hpp
             ./stats/StatModifier.hpp
 )
 

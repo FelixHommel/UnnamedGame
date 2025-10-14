@@ -7,7 +7,11 @@
 #include <cstdint>
 #include <string>
 
-namespace ugame::core
+namespace ugame::core::item
+{
+using namespace ugame::core::common;
+
+namespace itemtype
 {
 
 /// \brief Classification of Items
@@ -29,6 +33,9 @@ static ItemType toItemType(std::string_view str)
 
     return UNDEFINED;
 }
+
+} // !itemtype
+using namespace ugame::core::item::itemtype;
 
 /// \brief Items are something the  Player can interact with or use
 ///
@@ -52,6 +59,6 @@ private:
     StatModifier m_stats{};
 };
 
-} // !ugame::core
+} // !ugame::core::item
 
 #endif // !SRC_CORE_ITEM_ITEM_HPP

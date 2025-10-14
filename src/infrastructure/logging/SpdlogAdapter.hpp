@@ -5,14 +5,15 @@
 
 #include <string_view>
 
-namespace ugame::infrastructure
+namespace ugame::infrastructure::logging
 {
+using namespace ugame::core::common;
 
 /// \brief Spdlog adapter for the Logger Interface
 ///
 /// \author Felix Hommel
 /// \date 10/5/2025
-class SpdlogAdapter : public core::ILogger
+class SpdlogAdapter : public ILogger
 {
 public:
     void info(std::string_view msg) override;
@@ -20,6 +21,6 @@ public:
     void error(std::string_view msg) override;
 };
 
-} // !ugame::infrastructure
+} // !ugame::infrastructure::logging
 
 #endif // !SRC_INFRASTRUCTURE_LOGGING_SPDLOG_ADPATER_HPP

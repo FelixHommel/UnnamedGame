@@ -6,15 +6,16 @@
 #include <memory>
 #include <utility>
 
-using namespace ugame;
+using namespace ugame::core;
+using namespace ugame::infrastructure;
 
 int main()
 {
-    std::unique_ptr<infrastructure::SpdlogAdapter> logger{ std::make_unique<infrastructure::SpdlogAdapter>() };
-    std::unique_ptr<core::EventBus> eventBus{ std::make_unique<core::EventBus>() };
-    std::unique_ptr<infrastructure::KeyboardInputAdapter> input{ std::make_unique<infrastructure::KeyboardInputAdapter>(*eventBus) };
+    std::unique_ptr<logging::SpdlogAdapter> logger{ std::make_unique<logging::SpdlogAdapter>() };
+    std::unique_ptr<gameloop::EventBus> eventBus{ std::make_unique<gameloop::EventBus>() };
+    std::unique_ptr<input::KeyboardInputAdapter> input{ std::make_unique<input::KeyboardInputAdapter>(*eventBus) };
 
-    core::GameLoop gameLoop(std::move(logger), *eventBus, std::move(input));
+    gameloop::GameLoop gameLoop(std::move(logger), *eventBus, std::move(input));
 
     gameLoop.run();
 

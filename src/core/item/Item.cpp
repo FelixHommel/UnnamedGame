@@ -1,6 +1,6 @@
 #include "Item.hpp"
 
-namespace ugame::core
+namespace ugame::core::item
 {
 
 Item::Item(ItemID id, const std::string& name, ItemType type, StatModifier stats)
@@ -10,4 +10,4 @@ Item::Item(ItemID id, const std::string& name, ItemType type, StatModifier stats
     , m_stats{ stats }
 {}
 
-}
+} // !ugame::core::item

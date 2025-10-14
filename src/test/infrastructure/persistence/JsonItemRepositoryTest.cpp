@@ -14,7 +14,7 @@
 namespace ugame::test::infrastructure
 {
 using namespace ugame::infrastructure;
-using namespace ugame::core;
+using namespace ugame::core::common;
 
 /// \brief Class to test \ref JsonItemRepository
 ///
@@ -23,8 +23,8 @@ using namespace ugame::core;
 class JsonItemRepositoryTest : public testing::Test
 {
 protected:
-    std::shared_ptr<ILogger> m_logger{ std::make_shared<SpdlogAdapter>() };
-    JsonItemRepository repo{ std::string(RESOURCE_DIR) + JSON_ITEM_FILE , m_logger };
+    std::shared_ptr<ILogger> m_logger{ std::make_shared<logging::SpdlogAdapter>() };
+    persistence::JsonItemRepository repo{ std::string(RESOURCE_DIR) + JSON_ITEM_FILE , m_logger };
 
 private:
     static constexpr auto JSON_ITEM_FILE{ "Items.json" };
@@ -61,7 +61,7 @@ TEST_F(JsonItemRepositoryTest, FindAll)
 
 TEST_F(JsonItemRepositoryTest, LoadNonExistentFile)
 {
-    JsonItemRepository invalidRepo("./NonExistentFile", m_logger);
+    persistence::JsonItemRepository invalidRepo("./NonExistentFile", m_logger);
     ItemID queriedId{ 0 };
 
     ASSERT_THROW({ invalidRepo.findById(queriedId); }, core::RepositroyException);
@@ -70,7 +70,7 @@ TEST_F(JsonItemRepositoryTest, LoadNonExistentFile)
 
 TEST_F(JsonItemRepositoryTest, LoadInvalidSchemeFile)
 {
-    JsonItemRepository invalidRepo(std::string(RESOURCE_DIR) + "InvalidSchemeItemFile.json", m_logger);
+    persistence::JsonItemRepository invalidRepo(std::string(RESOURCE_DIR) + "InvalidSchemeItemFile.json", m_logger);
     ItemID queriedId{ 0 };
 
     ASSERT_THROW({ invalidRepo.findById(queriedId); }, core::RepositroyException);

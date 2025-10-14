@@ -2,6 +2,7 @@
 #define SRC_CORE_GAME_LOOP_EVENT_BUS_HPP
 
 #include "common/IEvent.hpp"
+#include "common/IEventChannel.hpp"
 
 #include <algorithm>
 #include <concepts>
@@ -11,27 +12,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ugame::core
+namespace ugame::core::gameloop
 {
-
-/// \brief Interface for Event channels
-///
-/// This is primarly usefull so that EventChannels can be stored generically in a container without mentioning
-/// their type parameter.
-///
-/// \author Felix Hommel
-/// \date 10/11/2025
-class IEventChannel
-{
-public:
-    IEventChannel() = default;
-    virtual ~IEventChannel() = default;
-
-    IEventChannel(const IEventChannel&) = default;
-    IEventChannel(IEventChannel&&) = delete;
-    IEventChannel& operator=(const IEventChannel&) = default;
-    IEventChannel& operator=(IEventChannel&&) = delete;
-};
+using namespace ugame::core::common;
 
 /// \brief EventChannel interface for the \ref EventBus to access subscribers of a certain event uniformly
 ///
@@ -138,6 +121,6 @@ private:
     }
 };
 
-} //!ugame::core
+} //!ugame::core::gameloop
 
 #endif //!SRC_CORE_GAME_LOOP_EVENT_BUS_HPP

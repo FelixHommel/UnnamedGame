@@ -5,6 +5,7 @@
 
 namespace ugame::core
 {
+using namespace ugame::core::common;
 
 /// \brief describes how something affects the Players stats
 ///

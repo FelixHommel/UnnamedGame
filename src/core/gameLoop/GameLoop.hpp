@@ -8,8 +8,9 @@
 
 #include <memory>
 
-namespace ugame::core
+namespace ugame::core::gameloop
 {
+using namespace ugame::core::common;
 
 /// \brief The GameLoop is where the core gameplay loop happens
 ///
@@ -41,6 +42,6 @@ private:
     void handlePlayerInput(const events::PlayerInputReceivedEvent& event);
 };
 
-} // !ugame::core
+} // !ugame::core::gameloop
 
 #endif // !SRC_CORE_GAME_LOOP_GAME_LOOP_HPP

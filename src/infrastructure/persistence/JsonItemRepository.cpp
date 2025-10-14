@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-namespace ugame::infrastructure
+namespace ugame::infrastructure::persistence
 {
 
 JsonItemRepository::JsonItemRepository(const std::filesystem::path& filepath, std::shared_ptr<core::ILogger> logger)
@@ -170,4 +170,4 @@ bool JsonItemRepository::validateJson(const nlohmann::json& itemJson) const
     return true;
 }
 
-} // !ugame::infrastructure
+} // !ugame::infrastructure::persistence

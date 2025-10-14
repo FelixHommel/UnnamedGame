@@ -9,6 +9,7 @@
 namespace ugame::test::core::eventBus
 {
 using namespace ugame::core;
+using namespace ugame::core::common;
 
 struct TestEvent1 : public IEvent { int value; };
 struct TestEvent2 : public IEvent { std::string value; };
@@ -16,7 +17,7 @@ struct TestEvent2 : public IEvent { std::string value; };
 class EventBusTest : public testing::Test
 {
 protected:
-    EventBus eventBus;
+    gameloop::EventBus eventBus;
 };
 
 TEST_F(EventBusTest, SingleSubscriberSingleEvent)

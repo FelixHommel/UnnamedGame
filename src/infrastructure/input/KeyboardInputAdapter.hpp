@@ -4,9 +4,9 @@
 #include "common/IPlayerInput.hpp"
 #include "gameLoop/EventBus.hpp"
 
-namespace ugame::infrastructure
+namespace ugame::infrastructure::input
 {
-using namespace ugame::core;
+using namespace ugame::core::common;
 
 /// \brief Provides keyboard input via console standard input
 ///
@@ -26,6 +26,6 @@ public:
     void poll() override;
 };
 
-} //!ugame::infrastructure
+} //!ugame::infrastructure::input
 
 #endif //!SRC_INFRASTRUCTURE_PLAYER_INPUT_KEYBOARD_INPUT_ADAPTER_HPP

@@ -2,8 +2,9 @@
 #define SRC_INFRASTRUCTURE_PERSISTENCE_JSON_ITEM_REPOSITORY_HPP
 
 #include "common/ILogger.hpp"
-#include "item/IItemRepository.hpp"
+#include "common/IItemRepository.hpp"
 #include "item/Item.hpp"
+
 #include "nlohmann/json.hpp"
 
 #include <filesystem>
@@ -11,14 +12,16 @@
 #include <memory>
 #include <vector>
 
-namespace ugame::infrastructure
+namespace ugame::infrastructure::persistence
 {
+using namespace ugame::core::common;
+using namespace ugame::core::item;
 
 /// \brief Implementation of Item repositories using JSON format
 ///
 /// \author Felix Hommel
 /// \date 10/5/2025
-class JsonItemRepository : public core::IItemRepository
+class JsonItemRepository : public IItemRepository
 {
 public:
     /// \brief Construct a new ItemRepository by providing the path to the file's location
@@ -30,13 +33,13 @@ public:
     JsonItemRepository& operator=(const JsonItemRepository&) = default;
     JsonItemRepository& operator=(JsonItemRepository&&) = default;
 
-    const core::Item* findById(ItemID id) override;
-    std::vector<const core::Item*> findAll() override;
+    const Item* findById(ItemID id) override;
+    std::vector<const Item*> findAll() override;
 
 private:
     std::filesystem::path m_filepath;
     std::shared_ptr<core::ILogger> m_logger;
-    std::map<ItemID, core::Item> m_itemCache; // NOTE: potentially needs to be changed to unique_ptrs in the future
+    std::map<ItemID, Item> m_itemCache; // NOTE: potentially needs to be changed to unique_ptrs in the future
 
     void checkCache();
     void loadItemsFromFile();
@@ -55,6 +58,6 @@ private:
     static constexpr auto STATS_LUCK_FIELD{ "luck" };
 };
 
-} // !ugame::infrastructure
+} // !ugame::infrastructure::persistence
 
 #endif // !SRC_INFRASTRUCTURE_PERSISTENCE_JSON_ITEM_REPOSITORY_HPP

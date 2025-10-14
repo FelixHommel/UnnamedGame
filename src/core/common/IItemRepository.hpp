@@ -2,12 +2,13 @@
 #define SRC_CORE_ITEM_I_ITEM_REPOSITORY_HPP
 
 #include "common/Definitions.hpp"
-#include "Item.hpp"
+#include "item/Item.hpp"
 
 #include <vector>
 
-namespace ugame::core
+namespace ugame::core::common
 {
+using namespace ugame::core::item;
 
 /// \brief Interface to access the avilable items
 ///
@@ -38,6 +39,6 @@ public:
     virtual std::vector<const Item*> findAll() = 0;
 };
 
-} // !ugame::core
+} // !ugame::core::common
 
 #endif // !SRC_CORE_ITEM_I_ITEM_REPOSITORY_HPP

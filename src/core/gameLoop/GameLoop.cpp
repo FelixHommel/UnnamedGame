@@ -8,7 +8,7 @@
 #include <memory>
 #include <utility>
 
-namespace ugame::core
+namespace ugame::core::gameloop
 {
 
 GameLoop::GameLoop(std::unique_ptr<ILogger> logger, EventBus& bus, std::unique_ptr<IPlayerInput> input)
@@ -42,4 +42,4 @@ void GameLoop::handlePlayerInput(const events::PlayerInputReceivedEvent& event)
         m_shouldQuit = true;
 }
 
-} // !ugame::core
+} // !ugame::core::gameloop

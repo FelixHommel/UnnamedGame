@@ -3,8 +3,9 @@
 
 #include "gameLoop/EventBus.hpp"
 
-namespace ugame::core
+namespace ugame::core::common
 {
+using namespace ugame::core::gameloop;
 
 /// \brief Interface that handles input from users
 ///
@@ -31,6 +32,6 @@ protected:
     EventBus& m_publisher;
 };
 
-} //!ugame::core
+} //!ugame::core::common
 
 #endif //!SRC_CORE_COMMON_I_PLAYER_INPUT_HPP

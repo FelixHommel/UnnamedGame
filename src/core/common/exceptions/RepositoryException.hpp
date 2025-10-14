@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-namespace ugame::core
+namespace ugame::core::common
 {
 
 // \brief exception class that is used by Repositories in the case that something didn't go as expected
@@ -27,6 +27,6 @@ public:
 private:
 };
 
-} //!ugame::core
+} //!ugame::core::common
 
 #endif //!SRC_CORE_COMMON_EXCEPTIONS_REPOSITORY_EXCEPTION_HPP

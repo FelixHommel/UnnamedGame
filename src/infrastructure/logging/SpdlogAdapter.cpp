@@ -4,7 +4,7 @@
 
 #include <string_view>
 
-namespace ugame::infrastructure
+namespace ugame::infrastructure::logging
 {
 
 void SpdlogAdapter::info(std::string_view msg)
@@ -22,4 +22,4 @@ void SpdlogAdapter::error(std::string_view msg)
     spdlog::error(msg);
 }
 
-} // !ugame::infrastructure
+} // !ugame::infrastructure::logging

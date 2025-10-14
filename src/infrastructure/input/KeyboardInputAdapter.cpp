@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 
-namespace ugame::infrastructure
+namespace ugame::infrastructure::input
 {
 
 KeyboardInputAdapter::KeyboardInputAdapter(EventBus& publisher)
@@ -18,7 +18,7 @@ void KeyboardInputAdapter::poll()
 {
     std::string input{};
     if(std::getline(std::cin, input))
-        m_publisher.publish(core::events::PlayerInputReceivedEvent{ .input = input });
+        m_publisher.publish(events::PlayerInputReceivedEvent{ .input = input });
 }
 
-} // !ugame::infrastructure
+} // !ugame::infrastructure::input
